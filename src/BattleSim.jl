@@ -1,5 +1,5 @@
 module BattleSim
 
-# Write your package code here.
+include("warriors.jl")
 
 end
