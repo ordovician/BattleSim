@@ -17,8 +17,12 @@ end
 mutable struct Knight <: Warrior
     name::String
     health::Int
+    mounted::Bool
 end
 
+function Knight(name::AbstractString, health::Integer)
+   Knight(name, health, true) 
+end
 
 function Archer(name::AbstractString, health::Integer)
     archer = Archer(name, health, 0)
@@ -33,6 +37,9 @@ Ressuply the archer with arrows.
 function resupply!(archer::Archer)
     archer.arrows = 24
 end
+
+mount(k::Knight) = k.mounted = true
+dismount(k::Knight) = k.mounted = false
 
 
 """
@@ -66,12 +73,16 @@ end
 
 """
     attack!(a::Archer, b::Knight)
-Archers cannot do a lot of damage to knights as 
-they can easily move away from the arrow rain and have good armor.
+Archers can do some damage to a knight when when he is mounted
+because the horse is vulnurable. Hurting dismounted knights is harder
+as most arrows cannot pierce plate armor.
 """
 function attack!(a::Archer, b::Knight)
     if a.arrows > 0
         damage = rand(1:6)
+        if b.mounted
+            damage += 3
+        end
         b.health = max(b.health - damage, 0)
         a.arrows -= 1
     end
@@ -125,11 +136,15 @@ end
 """
     attack!(a::Pikeman, b::Knight)
 Due to the superior mobility of knights, a pikeman cannot easily engage a
-knight which does not choose to attack.
+knight which does not choose to attack, unless the knight is dismounted.
 """
 function attack!(a::Pikeman, b::Knight)
     if rand(1:6) >= 6
-        b.health -= max(b.health - 1, 0)
+        damage = 1
+        if b.mounted
+            damage += rand(1:6)
+        end
+        b.health -= max(b.health - damage, 0)
     end
     a.health, b.health
 end
@@ -147,12 +162,18 @@ end
 
 """
     attack!(a::Knight, b::Pikeman)
-Unless they are lucky, knights will suffer heavy losses if attacking pikemen.
+Mounted knights attacking pikemen will usually suffer heavy losses
+unless attacking on a flank or the rear. Unmounted knights are more
+effective as pikemen cannot attack their vulnurable horses.
 """
 function attack!(a::Knight, b::Pikeman)
     damage = rand(1:6)
     b.health = max(b.health - damage, 0)
-    damage = 3*rand(1:6)
+    
+    damage = rand(1:6)
+    if a.mounted
+        damage += 2*rand(1:6)
+    end
     a.health = max(b.health - damage, 0)
     
     a.health, b.health
