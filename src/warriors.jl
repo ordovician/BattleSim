@@ -1,6 +1,8 @@
 export Warrior
 export Archer, Knight, Pikeman
 
+export battle!, attack!, resupply!, shoot!, mount!, dismount!
+
 abstract type Warrior end
 
 mutable struct Archer <: Warrior
@@ -31,16 +33,34 @@ function Archer(name::AbstractString, health::Integer)
 end
 
 """
-    resupply!(archer::Archer)
-Ressuply the archer with arrows.
+    shoot(a::Archer)
+Shoot an arrow. Deplete nubmer of arrows in quiver.
+"""
+function shoot!(a::Archer)
+    if a.arrows > 0
+        a.arrows -= 1
+    end
+    a
+end
+
+"""
+    resupply!(a::Archer)
+Ressuply archer `a` with arrows.
 """
 function resupply!(archer::Archer)
     archer.arrows = 24
+    archer
 end
 
-mount(k::Knight) = k.mounted = true
-dismount(k::Knight) = k.mounted = false
+function mount!(k::Knight)
+    k.mounted = true
+    k
+end
 
+function dismount!(k::Knight)
+    k.mounted = false
+    k
+end
 
 """
     battle!(a::Warrior, b::Warrior)
@@ -52,8 +72,10 @@ function battle!(a::Warrior, b::Warrior)
         println(a.name, " and ", b.name, " destroyed each other")
     elseif a.health == 0
         println(b.name, " defeated ", a.name)
-    else
+    elseif b.health == 0
         println(a.name, " defeated ", b.name)
+    else
+        println(b.name, " survived attack from ", a.name)
     end
 end
 
@@ -66,7 +88,7 @@ function attack!(a::Archer, b::Pikeman)
     if a.arrows > 0
         damage = 4 + rand(1:6)
         b.health = max(b.health - damage, 0)
-        a.arrows -= 1
+        shoot!(a)
     end
     a.health, b.health
 end
@@ -84,7 +106,7 @@ function attack!(a::Archer, b::Knight)
             damage += 3
         end
         b.health = max(b.health - damage, 0)
-        a.arrows -= 1
+        shoot!(a)
     end
     a.health, b.health
 end
@@ -98,7 +120,7 @@ function attack!(a::Archer, b::Archer)
     if a.arrows > 0
         damage = 6 + rand(1:6)
         b.health = max(b.health - damage, 0)
-        a.arrows -= 1
+        shoot!(a)
     end
     a.health, b.health
 end
