@@ -112,6 +112,17 @@ function attack!(a::Archer, b::Knight)
 end
 
 """
+    attack!(a::Knight, b::Knight)
+Knights vs knights is evenly matched and both have a fairly good chance of
+disengaging so casualties are not that high.
+"""
+function attack!(a::Knight, b::Knight)
+    a.health = max(a.health - rand(1:6), 0)
+    b.health = max(b.health - rand(1:6), 0)
+    a.health, b.health
+end
+
+"""
     attack!(a::Archer, b::Pikeman)
 Because pikemen move slowly they cannot easily get away from the rain of
 arrows and thus take significant damage.
@@ -133,7 +144,7 @@ only when lucky do they succeed in causing some injury.
 """
 function attack!(a::Pikeman, b::Archer)
    if rand(1:6) >= 5
-       b.health -= max(b.health - 2, 0)
+       b.health = max(b.health - 2, 0)
    end
    a.health, b.health
 end
@@ -167,7 +178,7 @@ function attack!(a::Pikeman, b::Knight)
         if b.mounted
             damage += rand(1:6)
         end
-        b.health -= max(b.health - damage, 0)
+        b.health = max(b.health - damage, 0)
     end
     a.health, b.health
 end
@@ -199,16 +210,5 @@ function attack!(a::Knight, b::Pikeman)
     end
     a.health = max(b.health - damage, 0)
     
-    a.health, b.health
-end
-
-"""
-    attack!(a::Knight, b::Knight)
-Knights vs knights is evenly matched and both have a fairly good chance of
-disengaging so casualties are not that high.
-"""
-function attack!(a::Knight, b::Knight)
-    a.health -= max(a.health - rand(1:6), 0)
-    b.health -= max(b.health - rand(1:6), 0)
     a.health, b.health
 end
