@@ -36,11 +36,11 @@ end
     shoot(a::Archer)
 Shoot an arrow. Deplete nubmer of arrows in quiver.
 """
-function shoot!(a::Archer)
-    if a.arrows > 0
-        a.arrows -= 1
+function shoot!(archer::Archer)
+    if archer.arrows > 0
+        archer.arrows -= 1
     end
-    a
+    archer
 end
 
 """
@@ -52,14 +52,14 @@ function resupply!(archer::Archer)
     archer
 end
 
-function mount!(k::Knight)
-    k.mounted = true
-    k
+function mount!(knight::Knight)
+    knight.mounted = true
+    knight
 end
 
 function dismount!(k::Knight)
-    k.mounted = false
-    k
+    knight.mounted = false
+    knight
 end
 
 """
@@ -80,15 +80,15 @@ function battle!(a::Warrior, b::Warrior)
 end
 
 """
-    attack!(a::Archer, b::Pikeman)
-Because pikemen move slowly they cannot easily get away from the rain of
-arrows and thus take significant damage.
+    attack!(a::Archer, b::Archer)
+Archers can do a fair amount of damage on other archers as 
+the archers don't have good armor to protect them.
 """
-function attack!(a::Archer, b::Pikeman)
+function attack!(a::Archer, b::Archer)
     if a.arrows > 0
-        damage = 4 + rand(1:6)
-        b.health = max(b.health - damage, 0)
         shoot!(a)
+        damage = 6 + rand(1:6)
+        b.health = max(b.health - damage, 0)
     end
     a.health, b.health
 end
@@ -101,29 +101,30 @@ as most arrows cannot pierce plate armor.
 """
 function attack!(a::Archer, b::Knight)
     if a.arrows > 0
+        shoot!(a)
         damage = rand(1:6)
         if b.mounted
             damage += 3
         end
         b.health = max(b.health - damage, 0)
-        shoot!(a)
     end
     a.health, b.health
 end
 
 """
-    attack!(a::Archer, b::Archer)
-Archers can do a fair amount of damage on other archers as 
-the archers don't have good armor to protect them.
+    attack!(a::Archer, b::Pikeman)
+Because pikemen move slowly they cannot easily get away from the rain of
+arrows and thus take significant damage.
 """
-function attack!(a::Archer, b::Archer)
+function attack!(a::Archer, b::Pikeman)
     if a.arrows > 0
-        damage = 6 + rand(1:6)
-        b.health = max(b.health - damage, 0)
         shoot!(a)
+        damage = 4 + rand(1:6)
+        b.health = max(b.health - damage, 0)
     end
     a.health, b.health
 end
+
 
 """
     attack!(a::Pikeman, b::Archer)
