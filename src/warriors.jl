@@ -57,7 +57,7 @@ function mount!(knight::Knight)
     knight
 end
 
-function dismount!(k::Knight)
+function dismount!(knight::Knight)
     knight.mounted = false
     knight
 end
